@@ -11,8 +11,11 @@ const app = express();
 app.use(cors());
 app.use(express.json()); 
 
-// routes here
+// Product routes here
 app.use('/api/products', require('./routes/productRoutes'));
+// Supplier routes here
+app.use('/api/suppliers', require('./routes/supplierRoutes'));
+
 
 const PORT = process.env.PORT || 5000;
 

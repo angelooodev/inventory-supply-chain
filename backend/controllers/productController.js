@@ -5,8 +5,19 @@ const Supplier = require('../models/supplierModel');
 // @route   GET /api/products
 const getProducts = async (req, res) => {
     try {
-        const products = await Product.find().populate('supplier', 'name email');
-        res.status(200).json(products);
+        const products = await Product.find().populate('supplier', 'name');
+        
+        // Add a virtual field for 'totalStock' and 'isLowStock' for the frontend
+        const formattedProducts = products.map(p => {
+            const total = p.warehouses.reduce((sum, wh) => sum + wh.stock, 0);
+            return {
+                ...p._doc,
+                totalStock: total,
+                isLowStock: total <= p.reorderThreshold
+            };
+        });
+        
+        res.status(200).json(formattedProducts);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

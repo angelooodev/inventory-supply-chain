@@ -4,8 +4,49 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg: #2C2B30;
+  --accent: #F2C4CE;
+  --highlight: #F58F7C;
+  --border: #5A595E;
+}
+
 body {
-  background-color: #2C2B30;
+  background-color: var(--bg);
   color: #D6D6D6;
   font-family: 'JetBrains Mono', monospace;
+  overflow-x: hidden;
+}
+
+@layer utilities {
+  /* The Box Grid Thing */
+  .bg-grid {
+    background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* The Glowing Circles */
+  .glow-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+    animation: glowPulse 6s ease-in-out infinite;
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { filter: blur(80px) brightness(1); opacity: 0.4; }
+    50% { filter: blur(100px) brightness(1.3); opacity: 0.6; }
+  }
+
+  .neon-glow-pink {
+    text-shadow: 0 0 8px rgba(242,196,206,0.6), 0 0 20px rgba(242,196,206,0.3);
+  }
+
+  .neon-border-pink {
+    border-color: rgba(242,196,206,0.4);
+    box-shadow: 0 0 12px rgba(242,196,206,0.08), inset 0 0 12px rgba(242,196,206,0.03);
+  }
 }
