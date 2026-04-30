@@ -11,7 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.json()); 
 
-// Mount the product routes here
+// routes here
 app.use('/api/products', require('./routes/productRoutes'));
 
 const PORT = process.env.PORT || 5000;
