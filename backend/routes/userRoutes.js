@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, authUser } = require('../controllers/userController');
+const { registerUser, authUser, getUsers } = require('../controllers/userController');
 
-// Standard registration and login routes
-router.post('/', registerUser);
+// Added the GET route to view users
+router.route('/').post(registerUser).get(getUsers);
 router.post('/login', authUser);
 
 module.exports = router;
