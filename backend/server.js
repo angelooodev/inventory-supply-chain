@@ -15,7 +15,8 @@ app.use(express.json());
 app.use('/api/products', require('./routes/productRoutes'));
 // Supplier routes here
 app.use('/api/suppliers', require('./routes/supplierRoutes'));
-
+// Order routes here
+app.use('/api/orders', require('./routes/orderRoutes'));
 
 const PORT = process.env.PORT || 5000;
 
