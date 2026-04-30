@@ -1,4 +1,5 @@
 const Product = require('../models/productModel');
+const Supplier = require('../models/supplierModel');
 
 // @desc    Get all products
 // @route   GET /api/products
