@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { fetchProducts, fetchOrders, fetchSuppliers, createOrder, updateOrderStatus } from './api/inventory';
 import Login from './components/Login';
+import { Menu, X, Download, ShieldCheck, Users, Package, Truck, LayoutDashboard } from 'lucide-react';
 
 // --- SVG COMPONENTS ---
 const SearchIcon = () => (
@@ -26,6 +27,9 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [successMessage, setSuccessMessage] = useState(''); 
   const [showNotifications, setShowNotifications] = useState(false);
+  
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   const [newOrder, setNewOrder] = useState({
     product: '', supplier: '', quantity: 0, warehouse: 'Warehouse A', orderType: 'Inbound'
@@ -74,6 +78,23 @@ function App() {
     setTimeout(() => setSuccessMessage(''), 3000);
   };
 
+  const exportToCSV = () => {
+    const headers = "Product,SKU,Price,Stock,TotalValue\n";
+    const csvRows = products.map(p => 
+      `${p.name},${p.sku},${p.price},${p.totalStock},${p.price * p.totalStock}`
+    ).join("\n");
+    const blob = new Blob([headers + csvRows], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', `lumiere_analytics_${new Date().toLocaleDateString()}.csv`);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    triggerSuccess("Analytics Report Exported");
+  };
+
   const getUnitColor = (count, isLow) => {
     if (count <= 0) return 'text-red-500';
     if (isLow) return 'text-[#F2C4CE]';
@@ -93,10 +114,6 @@ function App() {
 
   const handleCreateOrder = async (e) => {
     e.preventDefault();
-    if (!newOrder.product || !newOrder.supplier || newOrder.quantity <= 0) {
-      alert("Verify details.");
-      return;
-    }
     await createOrder(newOrder);
     setShowOrderModal(false);
     setShowNotifications(false); 
@@ -137,10 +154,12 @@ function App() {
     }
   };
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    p.sku.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const categories = ['All', ...new Set(products.map(p => p.category))];
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.sku.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   const lowStockAlerts = products.filter(p => p.isLowStock);
   const pendingOutbound = orders.filter(o => o.orderType === 'Outbound' && o.status !== 'Delivered');
@@ -162,21 +181,22 @@ function App() {
       <div className="glow-orb w-[500px] h-[500px] -top-20 -left-40 bg-[#F2C4CE]/10"></div>
       <div className="glow-orb w-[400px] h-[400px] bottom-0 -right-20 bg-[#F58F7C]/10"></div>
 
-      <aside className="w-64 border-r border-[#5A595E] flex flex-col bg-[#232226]/80 backdrop-blur-xl z-10 h-screen sticky top-0">
-        <div className="p-6 flex items-center gap-3 border-b border-[#5A595E]/30">
-          <div className="w-8 h-8 rounded-lg bg-[#F2C4CE] flex items-center justify-center font-bold text-[#2C2B30]">L</div>
-          <div>
+      <aside className={`fixed md:relative z-50 w-64 border-r border-[#5A595E] flex flex-col bg-[#232226] transform transition-transform duration-300 h-screen sticky top-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <div className="p-6 flex items-center justify-between border-b border-[#5A595E]/30">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-[#F2C4CE] flex items-center justify-center font-bold text-[#2C2B30]">L</div>
             <h1 className="font-bold text-lg text-[#F2C4CE]">Lumière</h1>
-            <p className="text-[10px] text-gray-500 tracking-widest uppercase font-bold">Inventory System</p>
           </div>
+          <button className="md:hidden" onClick={() => setIsSidebarOpen(false)}><X size={20} /></button>
         </div>
 
         <nav className="flex-1 p-4 space-y-2">
-          <button onClick={() => setActiveTab('inventory')} className={`w-full text-left p-3 rounded-lg text-xs font-bold transition-all ${activeTab === 'inventory' ? 'bg-[#F2C4CE]/10 text-[#F2C4CE] border border-[#F2C4CE]/20' : 'text-gray-400 hover:bg-white/5'}`}>INVENTORY</button>
-          <button onClick={() => setActiveTab('orders')} className={`w-full text-left p-3 rounded-lg text-xs font-bold transition-all ${activeTab === 'orders' ? 'bg-[#F2C4CE]/10 text-[#F2C4CE] border border-[#F2C4CE]/20' : 'text-gray-400 hover:bg-white/5'}`}>ORDER LOGS</button>
-          <button onClick={() => setActiveTab('reports')} className={`w-full text-left p-3 rounded-lg text-xs font-bold transition-all ${activeTab === 'reports' ? 'bg-[#F2C4CE]/10 text-[#F2C4CE] border border-[#F2C4CE]/20' : 'text-gray-400 hover:bg-white/5'}`}>REPORTS</button>
+          <button onClick={() => {setActiveTab('inventory'); setIsSidebarOpen(false)}} className={`w-full text-left p-3 rounded-lg text-xs font-bold transition-all ${activeTab === 'inventory' ? 'bg-[#F2C4CE]/10 text-[#F2C4CE] border border-[#F2C4CE]/20' : 'text-gray-400 hover:bg-white/5'}`}>INVENTORY</button>
+          <button onClick={() => {setActiveTab('orders'); setIsSidebarOpen(false)}} className={`w-full text-left p-3 rounded-lg text-xs font-bold transition-all ${activeTab === 'orders' ? 'bg-[#F2C4CE]/10 text-[#F2C4CE] border border-[#F2C4CE]/20' : 'text-gray-400 hover:bg-white/5'}`}>ORDER LOGS</button>
+          <button onClick={() => {setActiveTab('suppliers'); setIsSidebarOpen(false)}} className={`w-full text-left p-3 rounded-lg text-xs font-bold transition-all ${activeTab === 'suppliers' ? 'bg-[#F2C4CE]/10 text-[#F2C4CE] border border-[#F2C4CE]/20' : 'text-gray-400 hover:bg-white/5'}`}>SUPPLIER HUB</button>
+          <button onClick={() => {setActiveTab('reports'); setIsSidebarOpen(false)}} className={`w-full text-left p-3 rounded-lg text-xs font-bold transition-all ${activeTab === 'reports' ? 'bg-[#F2C4CE]/10 text-[#F2C4CE] border border-[#F2C4CE]/20' : 'text-gray-400 hover:bg-white/5'}`}>REPORTS</button>
           {user.role === 'Manager' && (
-            <button onClick={() => setActiveTab('users')} className={`w-full text-left p-3 rounded-lg text-xs font-bold transition-all ${activeTab === 'users' ? 'bg-[#F2C4CE]/10 text-[#F2C4CE] border border-[#F2C4CE]/20' : 'text-gray-400 hover:bg-white/5'}`}>STAFF MANAGEMENT</button>
+            <button onClick={() => {setActiveTab('users'); setIsSidebarOpen(false)}} className={`w-full text-left p-3 rounded-lg text-xs font-bold transition-all ${activeTab === 'users' ? 'bg-[#F2C4CE]/10 text-[#F2C4CE] border border-[#F2C4CE]/20' : 'text-gray-400 hover:bg-white/5'}`}>PERSONNEL</button>
           )}
         </nav>
 
@@ -191,8 +211,9 @@ function App() {
 
       <main className="flex-1 flex flex-col z-10 h-screen overflow-y-auto">
         <header className="h-16 border-b border-[#5A595E] flex items-center justify-between px-8 bg-[#2C2B30]/60 backdrop-blur-md sticky top-0 z-20">
-          <div className="relative w-1/3">
-            <input type="text" placeholder="Search by name or SKU..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-[#232226] border border-[#5A595E] rounded-full py-2 px-10 text-xs outline-none focus:border-[#F2C4CE] transition-all" />
+          <button className="md:hidden p-2 text-gray-400" onClick={() => setIsSidebarOpen(true)}><Menu size={24}/></button>
+          <div className="relative w-1/3 hidden sm:block">
+            <input type="text" placeholder="Search product or SKU..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-[#232226] border border-[#5A595E] rounded-full py-2 px-10 text-xs outline-none focus:border-[#F2C4CE] transition-all" />
             <span className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors"><SearchIcon /></span>
           </div>
 
@@ -206,7 +227,6 @@ function App() {
               )}
             </button>
             <button onClick={() => setShowOrderModal(true)} className="text-[10px] bg-[#F2C4CE] text-[#2C2B30] px-4 py-2 rounded font-bold uppercase hover:brightness-110 transition">NEW ORDER</button>
-            <button onClick={loadData} className="text-[10px] border border-[#5A595E] text-white px-4 py-2 rounded font-bold uppercase hover:bg-white/5">SYNC DB</button>
           </div>
         </header>
 
@@ -243,36 +263,44 @@ function App() {
 
         <div className="p-8">
           {activeTab === 'inventory' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map(p => (
-                <div key={p._id} className={`p-6 rounded-xl border bg-[#36353A]/40 backdrop-blur-sm transition-all duration-500 flex flex-col justify-between min-h-[240px] ${getCardStyle(p.totalStock, p.isLowStock)}`}>
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="font-bold text-white text-sm pr-4">{p.name}</h3>
-                    {p.isLowStock && <span className="text-[8px] bg-[#F2C4CE] text-[#2C2B30] px-2 py-1 rounded font-black whitespace-nowrap shadow-[0_0_8px_#F2C4CE]">LOW STOCK</span>}
-                  </div>
+            <>
+              <div className="flex gap-2 mb-8 overflow-x-auto pb-2 custom-scrollbar">
+                {categories.map(cat => (
+                  <button key={cat} onClick={() => setSelectedCategory(cat)} className={`px-4 py-1.5 rounded-full text-[10px] font-bold border transition-all whitespace-nowrap ${selectedCategory === cat ? 'bg-[#F2C4CE] text-[#2C2B30] border-[#F2C4CE]' : 'border-[#5A595E] text-gray-500 hover:border-gray-400'}`}>
+                    {cat.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredProducts.map(p => (
+                  <div key={p._id} className={`p-6 rounded-xl border bg-[#36353A]/40 backdrop-blur-sm transition-all duration-500 flex flex-col justify-between min-h-[240px] ${getCardStyle(p.totalStock, p.isLowStock)}`}>
+                    <div className="flex justify-between items-start mb-4">
+                      <h3 className="font-bold text-white text-sm pr-4">{p.name}</h3>
+                      {p.isLowStock && <span className="text-[8px] bg-[#F2C4CE] text-[#2C2B30] px-2 py-1 rounded font-black whitespace-nowrap shadow-[0_0_8px_#F2C4CE]">LOW STOCK</span>}
+                    </div>
 
-                  <div className="mb-4 grid grid-cols-2 gap-2">
-                    {['Warehouse A', 'Warehouse B'].map(whName => {
-                      const entry = p.warehouses?.find(w => w.name === whName);
-                      const currentStock = entry ? entry.stock : 0;
-                      return (
-                        <div key={whName} className="bg-black/20 p-2 rounded border border-white/5">
-                          <p className="text-[8px] text-gray-500 uppercase font-bold">{whName}</p>
-                          <p className={`text-[10px] font-bold ${currentStock <= 5 ? 'text-red-400' : 'text-gray-300'}`}>{currentStock} units</p>
-                        </div>
-                      );
-                    })}
-                  </div>
+                    <div className="mb-4 grid grid-cols-2 gap-2">
+                      {['Warehouse A', 'Warehouse B'].map(whName => {
+                        const entry = p.warehouses?.find(w => w.name === whName);
+                        const currentStock = entry ? entry.stock : 0;
+                        return (
+                          <div key={whName} className="bg-black/20 p-2 rounded border border-white/5">
+                            <p className="text-[8px] text-gray-500 uppercase font-bold">{whName}</p>
+                            <p className={`text-[10px] font-bold ${currentStock <= 5 ? 'text-red-400' : 'text-gray-300'}`}>{currentStock} units</p>
+                          </div>
+                        );
+                      })}
+                    </div>
 
-                  <div className="space-y-2 text-[10px]">
-                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-gray-500 uppercase font-bold">SKU</span><span className="text-[#F58F7C] font-mono">{p.sku}</span></div>
-                    {/* Added Individual Price Display */}
-                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-gray-500 uppercase font-bold">Unit Price</span><span className="text-white">₱{p.price?.toLocaleString()}</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500 uppercase font-bold">Stock Level</span><span className={`font-bold ${getUnitColor(p.totalStock, p.isLowStock)}`}>{p.totalStock} units</span></div>
+                    <div className="space-y-2 text-[10px]">
+                      <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-gray-500 uppercase font-bold">SKU</span><span className="text-[#F58F7C] font-mono">{p.sku}</span></div>
+                      <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-gray-500 uppercase font-bold">Unit Price</span><span className="text-white">₱{p.price?.toLocaleString()}</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500 uppercase font-bold">Stock Level</span><span className={`font-bold ${getUnitColor(p.totalStock, p.isLowStock)}`}>{p.totalStock} units</span></div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </>
           )}
 
           {activeTab === 'orders' && (
@@ -302,8 +330,35 @@ function App() {
             </div>
           )}
 
+          {activeTab === 'suppliers' && (
+            <div className="bg-[#36353A]/40 border border-[#5A595E] rounded-xl overflow-hidden shadow-2xl">
+              <div className="p-4 bg-[#232226] border-b border-[#5A595E] text-[10px] font-bold uppercase text-[#F2C4CE] tracking-widest">Supply Network</div>
+              <table className="w-full text-left text-[11px]">
+                <thead className="bg-black/20 text-gray-500 uppercase">
+                  <tr><th className="p-4">Supplier</th><th className="p-4">Contact</th><th className="p-4">Email</th><th className="p-4">Address</th></tr>
+                </thead>
+                <tbody>
+                  {suppliers.map(s => (
+                    <tr key={s._id} className="border-b border-white/5 hover:bg-white/5">
+                      <td className="p-4 font-bold">{s.name}</td>
+                      <td className="p-4 text-gray-400">{s.contactPerson}</td>
+                      <td className="p-4">{s.email}</td>
+                      <td className="p-4 text-gray-500 text-[10px]">{s.address}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
           {activeTab === 'reports' && (
             <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-sm font-bold uppercase tracking-widest text-[#F2C4CE]">Supply Chain Intelligence</h2>
+                <button onClick={exportToCSV} className="bg-[#F2C4CE] text-[#2C2B30] px-4 py-2 rounded font-bold text-[10px] flex items-center gap-2 hover:brightness-110">
+                  <Download size={14}/> EXPORT ANALYTICS
+                </button>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="p-8 bg-[#36353A]/40 border border-[#5A595E] rounded-2xl">
                   <p className="text-[10px] text-gray-500 uppercase font-bold mb-2">Total Inventory Value</p>
@@ -315,7 +370,6 @@ function App() {
                 </div>
               </div>
 
-              {/* Added Price/Value Breakdown Table in Reports */}
               <div className="bg-[#36353A]/40 border border-[#5A595E] rounded-2xl overflow-hidden shadow-2xl">
                 <div className="p-4 bg-[#232226] border-b border-[#5A595E] text-[10px] font-bold uppercase tracking-widest text-[#F2C4CE]">Financial Breakdown</div>
                 <table className="w-full text-left text-[11px]">
@@ -334,6 +388,22 @@ function App() {
                   </tbody>
                 </table>
               </div>
+
+              {user.role === 'Manager' && (
+                <div className="bg-[#36353A]/40 border border-[#5A595E] rounded-2xl overflow-hidden">
+                  <div className="p-4 bg-[#232226] border-b border-[#5A595E] flex items-center gap-2 text-[10px] font-bold text-[#F2C4CE] uppercase">
+                    <ShieldCheck size={16}/> Node Activity Logs
+                  </div>
+                  <div className="p-4 space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
+                    {orders.slice(0, 8).map(o => (
+                      <div key={o._id} className="text-[10px] flex items-center gap-3 border-l-2 border-[#F2C4CE] pl-3 py-1 bg-white/5">
+                        <span className="text-gray-500">[{new Date(o.createdAt).toLocaleTimeString()}]</span>
+                        <span className="text-white">Order {o._id.slice(-5)} updated to <b className="text-[#78DC8C]">{o.status}</b></span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

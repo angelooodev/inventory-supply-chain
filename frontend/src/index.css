@@ -10,26 +10,26 @@
   --secondary: #FFB7C5; /* Orchid Pink */
   --highlight: #F58F7C;
   --border: #5A595E;
-  --critical: #ef4444;  /* Red for zero stock */
-  --safe: #78DC8C;      /* Green for healthy stock */
+  --critical: #ef4444;  /* Red for zero stock[cite: 34] */
+  --safe: #78DC8C;      /* Green for healthy stock[cite: 34] */
 }
 
 body {
-  background-color: var(--bg);
+  background-color: var(--bg); /*[cite: 34] */
   color: #D6D6D6;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', monospace; /*[cite: 34] */
   overflow-x: hidden;
 }
 
 @layer utilities {
-  /* The Box Grid Thing */
+  /* The Box Grid Thing[cite: 34] */
   .bg-grid {
     background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
                       linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
     background-size: 60px 60px;
   }
 
-  /* The Glowing Circles */
+  /* The Glowing Circles[cite: 34] */
   .glow-orb {
     position: absolute;
     border-radius: 50%;
@@ -44,7 +44,7 @@ body {
     50% { filter: blur(100px) brightness(1.3); opacity: 0.6; }
   }
 
-  /* Specific Border Glows for Inventory Cards */
+  /* Specific Border Glows for Inventory Cards[cite: 34] */
   
   /* 1. Critical/Zero Stock: Red Border + Glow */
   .border-red-500 {
@@ -74,7 +74,29 @@ body {
   }
 }
 
-/* --- CUSTOM NEON SCROLLBAR[cite: 13, 26] --- */
+/* --- GLOBAL THEMED SCROLLBAR --- */
+/* Targets the main browser window scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg); /* Blends with your background[cite: 34] */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3d3c42; /* Muted contrast color */
+  border-radius: 10px;
+  border: 2px solid var(--bg); /* Creates space around the thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent); /* Glows Tea Rose on hover[cite: 34] */
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* --- CUSTOM NEON SCROLLBAR FOR COMPONENTS[cite: 34] --- */
+/* Used for small scroll areas like the Alert Center */
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;
 }
@@ -84,11 +106,11 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--accent); /* Tea Rose */
+  background: var(--accent); /* Tea Rose[cite: 34] */
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(242, 196, 206, 0.4);
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary); /* Orchid Pink hover */
+  background: var(--secondary); /* Orchid Pink hover[cite: 34] */
 }
