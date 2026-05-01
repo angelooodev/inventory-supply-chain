@@ -3,6 +3,8 @@ import { fetchProducts, fetchOrders, fetchSuppliers, createOrder, updateOrderSta
 import Login from './components/Login';
 import { Menu, X, Download, ShieldCheck, Users, Package, Truck, LayoutDashboard } from 'lucide-react';
 
+const API_BASE = "https://inventory-supply-chain.onrender.com/api";
+
 // --- SVG COMPONENTS ---
 const SearchIcon = () => (
   <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,7 +63,8 @@ function App() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/users', {
+      // FIX: Used backticks for template literal[cite: 33]
+      const response = await fetch(`${API_BASE}/users`, {
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
       if (response.ok) {
@@ -129,7 +132,8 @@ function App() {
 
   const handleRegisterStaff = async (e) => {
     e.preventDefault();
-    const response = await fetch('http://localhost:5000/api/users', {
+    // FIX: Used backticks for template literal[cite: 33]
+    const response = await fetch(`${API_BASE}/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${user.token}` },
       body: JSON.stringify(newStaff),
@@ -143,7 +147,7 @@ function App() {
 
   const handleDeactivateUser = async (id) => {
     if (window.confirm("Revoke access for this user?")) {
-      const response = await fetch(`http://localhost:5000/api/users/${id}`, {
+      const response = await fetch(`${API_BASE}/users/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
@@ -170,7 +174,6 @@ function App() {
 
   return (
     <div className="flex min-h-screen bg-[#2C2B30] relative overflow-hidden text-gray-200 font-mono">
-      
       {successMessage && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[200] bg-green-500 text-white px-8 py-3 rounded-full shadow-2xl font-bold text-[10px] uppercase tracking-widest animate-bounce">
           {successMessage}
@@ -209,7 +212,7 @@ function App() {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col z-10 h-screen overflow-y-auto">
+      <main className="flex-1 flex flex-col z-10 h-screen overflow-y-auto custom-scrollbar">
         <header className="h-16 border-b border-[#5A595E] flex items-center justify-between px-8 bg-[#2C2B30]/60 backdrop-blur-md sticky top-0 z-20">
           <button className="md:hidden p-2 text-gray-400" onClick={() => setIsSidebarOpen(true)}><Menu size={24}/></button>
           <div className="relative w-1/3 hidden sm:block">
@@ -227,6 +230,7 @@ function App() {
               )}
             </button>
             <button onClick={() => setShowOrderModal(true)} className="text-[10px] bg-[#F2C4CE] text-[#2C2B30] px-4 py-2 rounded font-bold uppercase hover:brightness-110 transition">NEW ORDER</button>
+            <button onClick={loadData} className="text-[10px] border border-[#5A595E] text-white px-4 py-2 rounded font-bold uppercase hover:bg-white/5">SYNC DB</button>
           </div>
         </header>
 
