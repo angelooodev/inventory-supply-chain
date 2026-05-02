@@ -8,7 +8,7 @@ const Login = ({ setAuthUser }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('${API_BASE}/users/login', {
+      const response = await fetch('https://inventory-supply-chain.onrender.com/api/users/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
