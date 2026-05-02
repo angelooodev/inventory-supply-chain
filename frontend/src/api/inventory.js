@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = 'https://inventory-supply-chain.onrender.com/api';
 
 // Helper to get token from storage
 const getAuthHeader = () => {
