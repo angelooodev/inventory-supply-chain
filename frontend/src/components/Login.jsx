@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
 const Login = ({ setAuthUser }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -8,7 +10,7 @@ const Login = ({ setAuthUser }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('https://inventory-supply-chain.onrender.com/api/users/login', {
+      const response = await fetch(`${API_BASE}/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

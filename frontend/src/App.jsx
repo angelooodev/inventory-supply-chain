@@ -3,7 +3,7 @@ import { fetchProducts, fetchOrders, fetchSuppliers, createOrder, updateOrderSta
 import Login from './components/Login';
 import { Menu, X, Download, ShieldCheck, Users, Package, Truck, LayoutDashboard } from 'lucide-react';
 
-const API_BASE = "https://inventory-supply-chain.onrender.com/api";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 // --- SVG COMPONENTS ---
 const SearchIcon = () => (
@@ -169,6 +169,20 @@ function App() {
   const pendingOutbound = orders.filter(o => o.orderType === 'Outbound' && o.status !== 'Delivered');
   const totalValue = products.reduce((acc, p) => acc + (p.price * p.totalStock), 0);
   const lowStockCount = products.filter(p => p.isLowStock).length;
+  const warehouseTotals = products.reduce((acc, product) => {
+    (product.warehouses || []).forEach((warehouse) => {
+      acc[warehouse.name] = (acc[warehouse.name] || 0) + warehouse.stock;
+    });
+    return acc;
+  }, { 'Warehouse A': 0, 'Warehouse B': 0 });
+  const getOrderActor = (order) => {
+    const name = order.createdBy?.name || order.createdByName || 'Lumiere Manager';
+    const rawRole = order.createdBy?.role || order.createdByRole;
+    return {
+      name,
+      role: !rawRole || rawRole === 'Unknown' ? 'Manager' : rawRole,
+    };
+  };
 
   if (!user) return <Login setAuthUser={setUser} />;
 
@@ -311,12 +325,18 @@ function App() {
             <div className="bg-[#36353A]/40 border border-[#5A595E] rounded-xl overflow-hidden shadow-2xl">
               <table className="w-full text-left text-[11px]">
                 <thead className="bg-[#232226] text-gray-500 uppercase border-b border-[#5A595E]">
-                  <tr><th className="p-4">Date/Time</th><th className="p-4">Product</th><th className="p-4">Type</th><th className="p-4">Warehouse</th><th className="p-4 text-right">Action</th></tr>
+                  <tr><th className="p-4">Date/Time</th><th className="p-4">Ordered By</th><th className="p-4">Product</th><th className="p-4">Type</th><th className="p-4">Warehouse</th><th className="p-4 text-right">Action</th></tr>
                 </thead>
                 <tbody>
-                  {orders.map(o => (
+                  {orders.map(o => {
+                    const actor = getOrderActor(o);
+                    return (
                     <tr key={o._id} className="border-b border-white/5 hover:bg-white/5 transition">
                       <td className="p-4 text-gray-500 text-[9px]">{new Date(o.createdAt).toLocaleString()}</td>
+                      <td className="p-4">
+                        <div className="font-bold text-white">{actor.name}</div>
+                        <div className={`text-[9px] uppercase font-black ${actor.role === 'Manager' ? 'text-[#F2C4CE]' : actor.role === 'Staff' ? 'text-[#78DC8C]' : 'text-gray-500'}`}>{actor.role}</div>
+                      </td>
                       <td className="p-4 font-bold">{o.product?.name || "N/A"}</td>
                       <td className="p-4 text-gray-400">{o.orderType}</td>
                       <td className="p-4 text-[#F2C4CE] font-bold">{o.warehouse}</td>
@@ -328,7 +348,7 @@ function App() {
                         )}
                       </td>
                     </tr>
-                  ))}
+                  )})}
                 </tbody>
               </table>
             </div>
@@ -363,14 +383,23 @@ function App() {
                   <Download size={14}/> EXPORT ANALYTICS
                 </button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-8 bg-[#36353A]/40 border border-[#5A595E] rounded-2xl">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+                <div className="p-6 bg-[#36353A]/40 border border-[#5A595E] rounded-2xl min-w-0">
                   <p className="text-[10px] text-gray-500 uppercase font-bold mb-2">Total Inventory Value</p>
                   <p className="text-3xl font-bold text-[#78DC8C]">₱{totalValue.toLocaleString()}</p>
                 </div>
-                <div className="p-8 bg-[#36353A]/40 border border-[#F2C4CE]/20 rounded-2xl">
+                <div className="p-6 bg-[#36353A]/40 border border-[#F2C4CE]/20 rounded-2xl min-w-0">
                   <p className="text-[10px] text-gray-500 uppercase font-bold mb-2">Critical Stock Alerts</p>
                   <p className="text-3xl font-bold text-[#F2C4CE]">{lowStockCount}</p>
+                </div>
+              
+                <div className="p-6 bg-[#36353A]/40 border border-[#5A595E] rounded-2xl min-w-0">
+                  <p className="text-[10px] text-gray-500 uppercase font-bold mb-2">Warehouse A Total Stock</p>
+                  <p className="text-3xl font-bold text-white">{warehouseTotals['Warehouse A'].toLocaleString()} units</p>
+                </div>
+                <div className="p-6 bg-[#36353A]/40 border border-[#5A595E] rounded-2xl min-w-0">
+                  <p className="text-[10px] text-gray-500 uppercase font-bold mb-2">Warehouse B Total Stock</p>
+                  <p className="text-3xl font-bold text-white">{warehouseTotals['Warehouse B'].toLocaleString()} units</p>
                 </div>
               </div>
 
@@ -453,7 +482,7 @@ function App() {
             <div className="space-y-1"><label className="text-[10px] text-gray-500 uppercase font-bold">Product</label><select className="w-full bg-[#2C2B30] border border-[#5A595E] p-3 rounded text-xs text-white" onChange={(e) => setNewOrder({...newOrder, product: e.target.value})} required value={newOrder.product}><option value="">-- Choose Product --</option>{products.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}</select></div>
             <div className="space-y-1"><label className="text-[10px] text-gray-500 uppercase font-bold">Supplier</label><select className="w-full bg-[#2C2B30] border border-[#5A595E] p-3 rounded text-xs text-white" onChange={(e) => setNewOrder({...newOrder, supplier: e.target.value})} required value={newOrder.supplier}><option value="">-- Select Partner --</option>{suppliers.map(s => <option key={s._id} value={s._id}>{s.name}</option>)}</select></div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1"><label className="text-[10px] text-gray-500 uppercase font-bold">Quantity</label><input type="number" className="w-full bg-[#2C2B30] border border-[#5A595E] p-3 rounded text-xs text-white outline-none" onChange={(e) => setNewOrder({...newOrder, quantity: parseInt(e.target.value)})} required /></div>
+              <div className="space-y-1"><label className="text-[10px] text-gray-500 uppercase font-bold">Quantity</label><input type="number" min="0" className="no-number-spinner w-full bg-[#2C2B30] border border-[#5A595E] p-3 rounded text-xs text-white outline-none" onChange={(e) => setNewOrder({...newOrder, quantity: Math.max(0, Number(e.target.value) || 0)})} required /></div>
               <div className="space-y-1"><label className="text-[10px] text-gray-500 uppercase font-bold">Target Hub</label><select className="w-full bg-[#2C2B30] border border-[#5A595E] p-3 rounded text-xs text-white" onChange={(e) => setNewOrder({...newOrder, warehouse: e.target.value})}><option value="Warehouse A">Warehouse A</option><option value="Warehouse B">Warehouse B</option></select></div>
             </div>
             <div className="flex gap-4 pt-4"><button type="submit" className="flex-1 bg-[#F2C4CE] text-[#2C2B30] font-bold py-4 rounded text-xs uppercase shadow-lg hover:brightness-110">Authorize</button><button type="button" onClick={() => setShowOrderModal(false)} className="flex-1 border border-[#5A595E] text-gray-400 font-bold py-4 rounded text-xs uppercase hover:bg-white/5 transition">Cancel</button></div>

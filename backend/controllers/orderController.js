@@ -61,7 +61,12 @@ const updateOrderStatus = async (req, res) => {
 // ... keep createOrder and getOrders as they were[cite: 3]
 const createOrder = async (req, res) => {
     try {
-        const order = await Order.create(req.body);
+        const order = await Order.create({
+            ...req.body,
+            createdBy: req.user?._id,
+            createdByName: req.user?.name || 'Unknown User',
+            createdByRole: req.user?.role || 'Unknown',
+        });
         res.status(201).json(order);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -70,7 +75,11 @@ const createOrder = async (req, res) => {
 
 const getOrders = async (req, res) => {
     try {
-        const orders = await Order.find().populate('product').populate('supplier');
+        const orders = await Order.find()
+            .populate('product')
+            .populate('supplier')
+            .populate('createdBy', 'name role')
+            .sort({ createdAt: -1 });
         res.status(200).json(orders);
     } catch (error) {
         res.status(500).json({ message: error.message });
