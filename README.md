@@ -61,15 +61,6 @@ Inventory System/
 - `Manager` can manage staff they created
 - `Staff` can view Inventory and Order Logs only
 
-## Default Super Admin Account
-
-The backend seeds a default Super Admin account on startup:
-
-- Email: `earljustinesierra@gmail.com`
-- Password: `Earl123`
-
-Change this password after first login if the system will be shared or deployed.
-
 ## Warehouse Seed Data
 
 The backend also seeds these warehouse records:
@@ -92,14 +83,14 @@ JWT_SECRET=your_jwt_secret
 ### 1. Install backend dependencies
 
 ```powershell
-cd "C:\Users\earlj\OneDrive\Desktop\Inventory System\backend"
+cd "backend"
 npm install
 ```
 
 ### 2. Install frontend dependencies
 
 ```powershell
-cd "C:\Users\earlj\OneDrive\Desktop\Inventory System\frontend"
+cd frontend
 npm install
 ```
 
@@ -110,14 +101,14 @@ Open two terminals.
 ### Backend
 
 ```powershell
-cd "C:\Users\earlj\OneDrive\Desktop\Inventory System\backend"
+cd backend
 npm run dev
 ```
 
 ### Frontend
 
 ```powershell
-cd "C:\Users\earlj\OneDrive\Desktop\Inventory System\frontend"
+cd frontend
 npm run dev
 ```
 
@@ -154,7 +145,7 @@ Then open the Vite URL, usually:
 ## Build Frontend
 
 ```powershell
-cd "C:\Users\earlj\OneDrive\Desktop\Inventory System\frontend"
+cd frontend
 npm run build
 ```
 
