@@ -6,10 +6,10 @@ const orderSchema = new mongoose.Schema({
     quantity: { type: Number, required: true },
     warehouse: { type: String, required: true }, // e.g., "Warehouse A"
     orderType: { type: String, enum: ['Inbound', 'Outbound'], required: true },
-    status: { type: String, enum: ['Pending', 'Shipped', 'Delivered'], default: 'Pending' },
+    status: { type: String, enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'], default: 'Pending' },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     createdByName: { type: String, trim: true },
-    createdByRole: { type: String, enum: ['Manager', 'Staff', 'Unknown'], default: 'Unknown' }
+    createdByRole: { type: String, enum: ['SuperAdmin', 'Manager', 'Staff', 'Unknown'], default: 'Unknown' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);
