@@ -2,6 +2,31 @@ const Product = require('../models/productModel');
 const Supplier = require('../models/supplierModel');
 const Warehouse = require('../models/warehouseModel');
 
+const syncProductWarehouses = async (product, warehouseRecords) => {
+    const existingEntries = new Map(
+        (product.warehouses || []).map((warehouse) => [warehouse.name, { name: warehouse.name, stock: warehouse.stock }])
+    );
+
+    let hasChanges = false;
+    const normalizedWarehouses = warehouseRecords.map((warehouse) => {
+        const existingEntry = existingEntries.get(warehouse.name);
+        if (existingEntry) {
+            return existingEntry;
+        }
+
+        hasChanges = true;
+        return { name: warehouse.name, stock: 0 };
+    });
+
+    if (hasChanges) {
+        product.warehouses = normalizedWarehouses;
+        product.markModified('warehouses');
+        await product.save();
+    }
+
+    return hasChanges ? normalizedWarehouses : (product.warehouses || []);
+};
+
 const requireSuperAdmin = (req, res) => {
     if (!req.user || req.user.role !== 'SuperAdmin') {
         res.status(403).json({ message: 'Access Denied: Only the Super Admin can manage products.' });
@@ -14,17 +39,22 @@ const requireSuperAdmin = (req, res) => {
 // @route   GET /api/products
 const getProducts = async (req, res) => {
     try {
-        const products = await Product.find().populate('supplier', 'name');
+        const [products, warehouseRecords] = await Promise.all([
+            Product.find().populate('supplier', 'name'),
+            Warehouse.find().sort({ name: 1 }).lean(),
+        ]);
         
         // Add a virtual field for 'totalStock' and 'isLowStock' for the frontend
-        const formattedProducts = products.map(p => {
-            const total = p.warehouses.reduce((sum, wh) => sum + wh.stock, 0);
+        const formattedProducts = await Promise.all(products.map(async (p) => {
+            const normalizedWarehouses = await syncProductWarehouses(p, warehouseRecords);
+            const total = normalizedWarehouses.reduce((sum, wh) => sum + wh.stock, 0);
             return {
                 ...p._doc,
+                warehouses: normalizedWarehouses,
                 totalStock: total,
-                isLowStock: total <= p.reorderThreshold
+                isLowStock: total < p.reorderThreshold
             };
-        });
+        }));
         
         res.status(200).json(formattedProducts);
     } catch (error) {

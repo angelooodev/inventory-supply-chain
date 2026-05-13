@@ -1,10 +1,41 @@
 const Order = require('../models/orderModel');
 const Product = require('../models/productModel');
+const Warehouse = require('../models/warehouseModel');
 
 const validateOrderQuantity = (quantity) => Number.isFinite(quantity) && quantity > 0;
 
 const getWarehouseEntry = (product, warehouseName) => {
     return product.warehouses.find((warehouse) => warehouse.name === warehouseName);
+};
+
+const syncProductWarehouses = async (product) => {
+    const warehouseRecords = await Warehouse.find().sort({ name: 1 }).lean();
+    if (warehouseRecords.length === 0) {
+        return product.warehouses || [];
+    }
+
+    const existingEntries = new Map(
+        (product.warehouses || []).map((warehouse) => [warehouse.name, { name: warehouse.name, stock: warehouse.stock }])
+    );
+
+    let hasChanges = false;
+    const normalizedWarehouses = warehouseRecords.map((warehouse) => {
+        const existingEntry = existingEntries.get(warehouse.name);
+        if (existingEntry) {
+            return existingEntry;
+        }
+
+        hasChanges = true;
+        return { name: warehouse.name, stock: 0 };
+    });
+
+    if (hasChanges) {
+        product.warehouses = normalizedWarehouses;
+        product.markModified('warehouses');
+        await product.save();
+    }
+
+    return hasChanges ? normalizedWarehouses : (product.warehouses || []);
 };
 
 // @desc    Update order status and adjust stock
@@ -47,6 +78,8 @@ const updateOrderStatus = async (req, res) => {
                 return res.status(404).json({ message: 'Product not found' });
             }
 
+            await syncProductWarehouses(product);
+
             // 1. Find the correct warehouse
             const warehouseEntry = getWarehouseEntry(product, order.warehouse);
 
@@ -70,7 +103,7 @@ const updateOrderStatus = async (req, res) => {
 
                 // 3. RECALCULATE LOW STOCK STATUS
                 // This clears the pink alerts in your Notification Bell[cite: 3]
-                product.isLowStock = product.totalStock <= 10; 
+                product.isLowStock = product.totalStock < (product.reorderThreshold ?? 10); 
 
                 // 4. Force Mongoose to save changes inside the array
                 product.markModified('warehouses');
@@ -109,6 +142,8 @@ const createOrder = async (req, res) => {
             if (!product) {
                 return res.status(404).json({ message: 'Product not found' });
             }
+
+            await syncProductWarehouses(product);
 
             const warehouseEntry = getWarehouseEntry(product, req.body.warehouse);
             if (!warehouseEntry) {

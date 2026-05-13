@@ -6,6 +6,7 @@ import { Menu, X, Download, ShieldCheck, Users, Package, Truck, LayoutDashboard 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 const getActiveTabStorageKey = (userId) => `lumiere_active_tab_${userId}`;
 const getSupplierSubTabStorageKey = (userId) => `lumiere_supplier_subtab_${userId}`;
+const pageHeaderSpacerClass = 'min-h-[44px] flex items-center';
 
 // --- SVG COMPONENTS ---
 const SearchIcon = () => (
@@ -219,13 +220,13 @@ function App() {
 
   const getUnitColor = (count, isLow) => {
     if (count <= 0) return 'text-red-500';
-    if (isLow) return 'text-[#F2C4CE]';
+    if (isLow) return 'text-amber-400';
     return 'text-[#78DC8C]';
   };
 
   const getCardStyle = (count, isLow) => {
     if (count <= 0) return 'border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]';
-    if (isLow) return 'border-[#F2C4CE] shadow-[0_0_15px_rgba(242,196,206,0.15)]';
+    if (isLow) return 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.16)]';
     return 'border-[#FFB7C5] shadow-[0_0_10px_rgba(255,183,197,0.05)]';
   };
 
@@ -584,11 +585,17 @@ function App() {
       </aside>
 
       <main className="flex-1 flex flex-col z-10 h-screen overflow-y-auto custom-scrollbar">
-        <header className="h-16 border-b border-[#5A595E] flex items-center justify-between px-8 bg-[#2C2B30]/60 backdrop-blur-md sticky top-0 z-20">
+        <header className="h-16 border-b border-[#5A595E] grid grid-cols-[1fr_auto] sm:grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-8 bg-[#2C2B30]/60 backdrop-blur-md sticky top-0 z-20">
           <button className="md:hidden p-2 text-gray-400" onClick={() => setIsSidebarOpen(true)}><Menu size={24}/></button>
-          <div className="relative w-1/3 hidden sm:block">
-            <input type="text" placeholder="Search product or SKU..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-[#232226] border border-[#5A595E] rounded-full py-2 px-10 text-xs outline-none focus:border-[#F2C4CE] transition-all" />
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors"><SearchIcon /></span>
+          <div className="hidden sm:flex items-center min-w-0">
+            {activeTab === 'inventory' ? (
+              <div className="relative w-full max-w-[520px]">
+                <input type="text" placeholder="Search product or SKU..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-[#232226] border border-[#5A595E] rounded-full h-10 px-10 text-xs outline-none focus:border-[#F2C4CE] transition-all" />
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors"><SearchIcon /></span>
+              </div>
+            ) : (
+              <div className="h-10 w-full max-w-[520px]" />
+            )}
           </div>
 
           <div className="flex gap-4 items-center">
@@ -646,20 +653,22 @@ function App() {
 
         <div className="p-8">
           {activeTab === 'inventory' && (
-            <>
-              <div className="flex gap-2 mb-8 overflow-x-auto pb-2 custom-scrollbar">
-                {categories.map(cat => (
-                  <button key={cat} onClick={() => setSelectedCategory(cat)} className={`px-4 py-1.5 rounded-full text-[10px] font-bold border transition-all whitespace-nowrap ${selectedCategory === cat ? 'bg-[#F2C4CE] text-[#2C2B30] border-[#F2C4CE]' : 'border-[#5A595E] text-gray-500 hover:border-gray-400'}`}>
-                    {cat.toUpperCase()}
-                  </button>
-                ))}
+            <div className="space-y-8">
+              <div className="h-12 flex items-center overflow-x-auto custom-scrollbar">
+                <div className="flex gap-2">
+                  {categories.map(cat => (
+                    <button key={cat} onClick={() => setSelectedCategory(cat)} className={`px-4 py-1.5 rounded-full text-[10px] font-bold border transition-all whitespace-nowrap ${selectedCategory === cat ? 'bg-[#F2C4CE] text-[#2C2B30] border-[#F2C4CE]' : 'border-[#5A595E] text-gray-500 hover:border-gray-400'}`}>
+                      {cat.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProducts.map(p => (
                   <div key={p._id} className={`p-6 rounded-xl border bg-[#36353A]/40 backdrop-blur-sm transition-all duration-500 flex flex-col justify-between min-h-[240px] ${getCardStyle(p.totalStock, p.isLowStock)}`}>
                     <div className="flex justify-between items-start mb-4">
                       <h3 className="font-bold text-white text-sm pr-4">{p.name}</h3>
-                      {p.isLowStock && <span className="text-[8px] bg-[#F2C4CE] text-[#2C2B30] px-2 py-1 rounded font-black whitespace-nowrap shadow-[0_0_8px_#F2C4CE]">LOW STOCK</span>}
+                      {p.isLowStock && <span className={`text-[8px] px-2 py-1 rounded font-black whitespace-nowrap ${p.totalStock <= 0 ? 'bg-red-500 text-white shadow-[0_0_8px_rgba(239,68,68,0.35)]' : 'bg-amber-300 text-[#2C2B30] shadow-[0_0_8px_rgba(251,191,36,0.35)]'}`}>LOW STOCK</span>}
                     </div>
 
                     <div className="mb-4 grid grid-cols-2 gap-2">
@@ -669,7 +678,7 @@ function App() {
                         return (
                           <div key={whName} className="bg-black/20 p-2 rounded border border-white/5">
                             <p className="text-[8px] text-gray-500 uppercase font-bold">{whName}</p>
-                            <p className={`text-[10px] font-bold ${currentStock <= 5 ? 'text-red-400' : 'text-gray-300'}`}>{currentStock} units</p>
+                            <p className={`text-[10px] font-bold ${currentStock <= 0 ? 'text-red-400' : p.isLowStock ? 'text-amber-400' : 'text-gray-300'}`}>{currentStock} units</p>
                           </div>
                         );
                       })}
@@ -683,46 +692,51 @@ function App() {
                   </div>
                 ))}
               </div>
-            </>
+            </div>
           )}
 
           {activeTab === 'orders' && (
             <div className="bg-[#36353A]/40 border border-[#5A595E] rounded-xl overflow-hidden shadow-2xl">
-              <table className="w-full text-left text-[11px]">
-                <thead className="bg-[#232226] text-gray-500 uppercase border-b border-[#5A595E]">
-                  <tr><th className="p-4">Date/Time</th><th className="p-4">Ordered By</th><th className="p-4">Product</th><th className="p-4">Type</th><th className="p-4">Warehouse</th><th className="p-4 text-right">Action</th></tr>
-                </thead>
-                <tbody>
-                  {orders.map(o => {
-                    const actor = getOrderActor(o);
-                    return (
-                    <tr key={o._id} className="border-b border-white/5 hover:bg-white/5 transition">
-                      <td className="p-4 text-gray-500 text-[9px]">{new Date(o.createdAt).toLocaleString()}</td>
-                      <td className="p-4">
-                        <div className="font-bold text-white">{actor.name}</div>
-                        <div className={`text-[9px] uppercase font-black ${actor.role === 'Manager' ? 'text-[#F2C4CE]' : actor.role === 'Staff' ? 'text-[#78DC8C]' : 'text-gray-500'}`}>{actor.role}</div>
-                      </td>
-                      <td className="p-4 font-bold">{o.product?.name || "N/A"}</td>
-                      <td className="p-4 text-gray-400">{o.orderType}</td>
-                      <td className="p-4 text-[#F2C4CE] font-bold">{o.warehouse}</td>
-                      <td className="p-4 text-right">
-                        {o.status === 'Delivered' ? (
-                          <span className="inline-flex items-center rounded-full border border-green-400/30 bg-green-400/10 px-3 py-1 text-[#78DC8C] text-[9px] uppercase font-bold">Completed</span>
-                        ) : o.status === 'Cancelled' ? (
-                          <span className="inline-flex items-center rounded-full border border-red-400/30 bg-red-400/10 px-3 py-1 text-red-300 text-[9px] uppercase font-bold">Cancelled</span>
-                        ) : !canManageOrders ? (
-                          <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-gray-400 text-[9px] uppercase font-bold">{o.status}</span>
-                        ) : (
-                          <div className="flex justify-end gap-2">
-                            <button onClick={() => handleDeliver(o._id, o.orderType)} className="rounded-full border border-[#F2C4CE]/40 bg-[#F2C4CE]/10 px-3 py-1 text-[9px] uppercase font-bold text-[#F2C4CE] hover:bg-[#F2C4CE]/20 hover:text-white transition">Deliver</button>
-                            <button onClick={() => handleCancelOrder(o._id)} className="rounded-full border border-red-400/40 bg-red-400/10 px-3 py-1 text-[9px] uppercase font-bold text-red-300 hover:bg-red-400/20 hover:text-white transition">Cancel</button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  )})}
-                </tbody>
-              </table>
+              <div className="p-4 bg-[#232226] border-b border-[#5A595E]">
+                <span className="text-[10px] font-bold uppercase text-[#F2C4CE] tracking-widest">Order Logs</span>
+              </div>
+              <div>
+                <table className="w-full text-left text-[11px]">
+                  <thead className="bg-black/20 text-gray-500 uppercase border-b border-[#5A595E]">
+                    <tr><th className="p-4">Date/Time</th><th className="p-4">Ordered By</th><th className="p-4">Product</th><th className="p-4">Type</th><th className="p-4">Warehouse</th><th className="p-4 text-right">Action</th></tr>
+                  </thead>
+                  <tbody>
+                    {orders.map(o => {
+                      const actor = getOrderActor(o);
+                      return (
+                      <tr key={o._id} className="border-b border-white/5 hover:bg-white/5 transition">
+                        <td className="p-4 text-gray-500 text-[9px]">{new Date(o.createdAt).toLocaleString()}</td>
+                        <td className="p-4">
+                          <div className="font-bold text-white">{actor.name}</div>
+                          <div className={`text-[9px] uppercase font-black ${['Manager', 'SuperAdmin'].includes(actor.role) ? 'text-[#F2C4CE]' : actor.role === 'Staff' ? 'text-[#78DC8C]' : 'text-gray-500'}`}>{actor.role}</div>
+                        </td>
+                        <td className="p-4 font-bold">{o.product?.name || "N/A"}</td>
+                        <td className="p-4 text-gray-400">{o.orderType}</td>
+                        <td className="p-4 text-[#F2C4CE] font-bold">{o.warehouse}</td>
+                        <td className="p-4 text-right">
+                          {o.status === 'Delivered' ? (
+                            <span className="inline-flex items-center rounded-full border border-green-400/30 bg-green-400/10 px-3 py-1 text-[#78DC8C] text-[9px] uppercase font-bold">Completed</span>
+                          ) : o.status === 'Cancelled' ? (
+                            <span className="inline-flex items-center rounded-full border border-red-400/30 bg-red-400/10 px-3 py-1 text-red-300 text-[9px] uppercase font-bold">Cancelled</span>
+                          ) : !canManageOrders ? (
+                            <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-gray-400 text-[9px] uppercase font-bold">{o.status}</span>
+                          ) : (
+                            <div className="flex justify-end gap-2">
+                              <button onClick={() => handleDeliver(o._id, o.orderType)} className="rounded-full border border-[#F2C4CE]/40 bg-[#F2C4CE]/10 px-3 py-1 text-[9px] uppercase font-bold text-[#F2C4CE] hover:bg-[#F2C4CE]/20 hover:text-white transition">Deliver</button>
+                              <button onClick={() => handleCancelOrder(o._id)} className="rounded-full border border-red-400/40 bg-red-400/10 px-3 py-1 text-[9px] uppercase font-bold text-red-300 hover:bg-red-400/20 hover:text-white transition">Cancel</button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )})}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
@@ -794,11 +808,13 @@ function App() {
 
           {activeTab === 'reports' && (
             <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-sm font-bold uppercase tracking-widest text-[#F2C4CE]">Supply Chain Intelligence</h2>
-                <button onClick={exportToCSV} className="bg-[#F2C4CE] text-[#2C2B30] px-4 py-2 rounded font-bold text-[10px] flex items-center gap-2 hover:brightness-110">
-                  <Download size={14}/> EXPORT ANALYTICS
-                </button>
+              <div className="bg-[#36353A]/40 border border-[#5A595E] rounded-xl overflow-hidden shadow-2xl">
+                <div className="p-4 bg-[#232226] border-b border-[#5A595E] flex items-center justify-between gap-4">
+                  <h2 className="text-[10px] font-bold uppercase tracking-widest text-[#F2C4CE]">Supply Chain Intelligence</h2>
+                  <button onClick={exportToCSV} className="bg-[#F2C4CE] text-[#2C2B30] px-4 py-2 rounded font-bold text-[10px] flex items-center gap-2 hover:brightness-110">
+                    <Download size={14}/> EXPORT ANALYTICS
+                  </button>
+                </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
                 <div className="p-6 bg-[#36353A]/40 border border-[#5A595E] rounded-2xl min-w-0">
