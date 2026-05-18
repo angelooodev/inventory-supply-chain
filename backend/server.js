@@ -13,6 +13,9 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use('/files', express.static(path.resolve(__dirname, 'storage')));
+app.get('/healthz', (_req, res) => {
+    res.status(200).json({ ok: true });
+});
 
 // Product routes here
 app.use('/api/products', require('./routes/productRoutes'));
