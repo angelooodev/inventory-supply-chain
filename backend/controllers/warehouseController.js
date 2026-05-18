@@ -1,4 +1,5 @@
 const Warehouse = require('../models/warehouseModel');
+const User = require('../models/userModel');
 
 const requireSuperAdmin = (req, res) => {
     if (!req.user || req.user.role !== 'SuperAdmin') {
@@ -8,9 +9,35 @@ const requireSuperAdmin = (req, res) => {
     return true;
 };
 
+const resolveManagerAssignment = async (managerId, currentWarehouseId = null) => {
+    if (!managerId) return null;
+
+    const manager = await User.findById(managerId).select('_id role name email');
+    if (!manager || manager.role !== 'Manager') {
+        const error = new Error('Assigned warehouse manager must be a valid Manager account.');
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const existingAssignment = await Warehouse.findOne({
+        manager: manager._id,
+        ...(currentWarehouseId ? { _id: { $ne: currentWarehouseId } } : {}),
+    });
+
+    if (existingAssignment) {
+        const error = new Error(`${manager.name} is already assigned to ${existingAssignment.name}.`);
+        error.statusCode = 400;
+        throw error;
+    }
+
+    return manager._id;
+};
+
 const getWarehouses = async (req, res) => {
     try {
-        const warehouses = await Warehouse.find().sort({ name: 1 });
+        const warehouses = await Warehouse.find({})
+            .populate('manager', 'name email role')
+            .sort({ name: 1 });
         res.status(200).json(warehouses);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -20,14 +47,20 @@ const getWarehouses = async (req, res) => {
 const createWarehouse = async (req, res) => {
     try {
         if (!requireSuperAdmin(req, res)) return;
-        const { name, address } = req.body;
+        const { name, address, manager } = req.body;
         if (!name) {
             return res.status(400).json({ message: 'Warehouse name is required.' });
         }
-        const warehouse = await Warehouse.create({ name: name.trim(), address: address || '' });
+        const assignedManager = await resolveManagerAssignment(manager);
+        const warehouse = await Warehouse.create({
+            name: name.trim(),
+            address: address || '',
+            manager: assignedManager,
+        });
+        await warehouse.populate('manager', 'name email role');
         res.status(201).json(warehouse);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(error.statusCode || 500).json({ message: error.message });
     }
 };
 
@@ -55,11 +88,13 @@ const updateWarehouse = async (req, res) => {
 
         warehouse.name = nextName;
         warehouse.address = req.body.address?.trim() || '';
+        warehouse.manager = await resolveManagerAssignment(req.body.manager, warehouse._id);
         await warehouse.save();
+        await warehouse.populate('manager', 'name email role');
 
         res.status(200).json(warehouse);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(error.statusCode || 500).json({ message: error.message });
     }
 };
 

@@ -1,0 +1,34 @@
+{
+  "po_number": "PO-2026-0011",
+  "date_issued": "2026-05-15",
+  "delivery_date": "2026-05-22",
+  "supplier_name": "Neon Lights Logistics",
+  "contact_person": "Janjan Bansag",
+  "supplier_address": "Mandaue City, Cebu, Philippines",
+  "supplier_contact": "+63 912 345 6789",
+  "items": [
+    {
+      "item_number": "1",
+      "description": "Anime LED Neon Sign - Zero Two Edition",
+      "quantity": "10",
+      "unit_price": "PHP 2,499.00",
+      "amount": "PHP 24,990.00"
+    }
+  ],
+  "subtotal": "PHP 24,990.00",
+  "vat": "PHP 0.00",
+  "shipping_fee": "PHP 0.00",
+  "total_amount": "PHP 24,990.00",
+  "warehouse_name": "Warehouse A",
+  "warehouse_address": "Pope John Paul II Avenue, Cebu City, Cebu",
+  "warehouse_manager_signature_path": "C:\\Users\\earlj\\OneDrive\\Desktop\\Inventory System\\backend\\storage\\signatures\\1778808034728-po-2026-0011-warehouse-manager.png",
+  "owner_signature_path": "C:\\Users\\earlj\\OneDrive\\Desktop\\Inventory System\\backend\\storage\\signatures\\1778808407999-po-2026-0011-owner.png",
+  "supplier_signature_path": "",
+  "warehouse_manager_name": "Lumiere Manager",
+  "owner_name": "Earl Super Admin",
+  "supplier_representative": "Janjan Bansag",
+  "company_name": "Lumiere Corporation",
+  "company_address": "Natalio B. Bacalso Ave, Bulacao Pardo, Cebu City, 6000 Cebu",
+  "company_contact": "09705157399",
+  "company_email": "earljustinesierra@gmail.com"
+}

@@ -5,8 +5,9 @@ const userSchema = mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ['SuperAdmin', 'Manager', 'Staff'], default: 'Staff' },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
+    role: { type: String, enum: ['SuperAdmin', 'Manager', 'Accountant', 'Staff', 'Supplier'], default: 'Staff' },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    supplier: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier', default: null },
 }, { timestamps: true });
 
 // Password Hashing Middleware: Scrambles the password before saving to MongoDB

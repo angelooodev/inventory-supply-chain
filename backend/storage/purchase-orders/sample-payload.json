@@ -1,0 +1,27 @@
+{
+  "po_number": "PO-2026-0001",
+  "date_issued": "2026-05-14",
+  "delivery_date": "2026-05-21",
+  "supplier_name": "Sample Supplier",
+  "contact_person": "Jane Doe",
+  "supplier_address": "Cebu City",
+  "supplier_contact": "09123456789",
+  "items": [
+    {
+      "description": "Anime LED Neon Sign - Zero Two Edition",
+      "quantity": "25",
+      "unit_price": "PHP 2,499.00",
+      "unit": "pcs",
+      "amount": "PHP 62,475.00"
+    }
+  ],
+  "subtotal": "PHP 62,475.00",
+  "vat": "PHP 0.00",
+  "shipping_fee": "PHP 0.00",
+  "total_amount": "PHP 62,475.00",
+  "warehouse_name": "Warehouse A",
+  "warehouse_address": "Sample Warehouse Address",
+  "warehouse_manager_signature_path": "",
+  "owner_signature_path": "",
+  "supplier_signature_path": ""
+}

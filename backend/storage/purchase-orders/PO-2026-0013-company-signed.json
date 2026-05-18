@@ -1,0 +1,34 @@
+{
+  "po_number": "PO-2026-0013",
+  "date_issued": "2026-05-17",
+  "delivery_date": "2026-05-24",
+  "supplier_name": "Dranix Distributor",
+  "contact_person": "Dane Ralph Nacario",
+  "supplier_address": "Lucimba Pardo, Cebu city",
+  "supplier_contact": "09324131383",
+  "items": [
+    {
+      "item_number": "1",
+      "description": "Anime LED Neon Sign - Zero Two Edition",
+      "quantity": "10",
+      "unit_price": "PHP 2,499.00",
+      "amount": "PHP 24,990.00"
+    }
+  ],
+  "subtotal": "PHP 24,990.00",
+  "vat": "PHP 0.00",
+  "shipping_fee": "PHP 0.00",
+  "total_amount": "PHP 24,990.00",
+  "warehouse_name": "Warehouse A",
+  "warehouse_address": "Pope John Paul II Avenue, Cebu City, Cebu",
+  "warehouse_manager_signature_path": "C:\\Users\\earlj\\OneDrive\\Desktop\\Inventory System\\backend\\storage\\signatures\\1778986972259-po-2026-0013-warehouse-manager.png",
+  "owner_signature_path": "C:\\Users\\earlj\\OneDrive\\Desktop\\Inventory System\\backend\\storage\\signatures\\1778986990240-po-2026-0013-owner.png",
+  "supplier_signature_path": "",
+  "warehouse_manager_name": "Lumiere Manager",
+  "owner_name": "Earl Super Admin",
+  "supplier_representative": "Dane Ralph Nacario",
+  "company_name": "Lumiere Corporation",
+  "company_address": "Natalio B. Bacalso Ave, Bulacao Pardo, Cebu City, 6000 Cebu",
+  "company_contact": "09705157399",
+  "company_email": "earljustinesierra@gmail.com"
+}

@@ -38,23 +38,23 @@ const Login = ({ setAuthUser }) => {
              <span className="text-[#2C2B30] font-black text-xl">L</span>
           </div>
           <h1 className="text-2xl font-bold text-[#F2C4CE] tracking-tight">Lumière Neon</h1>
-          <p className="text-[10px] text-gray-500 uppercase mt-2 tracking-widest">Inventory Management System</p>
+          <p className="text-[13px] text-gray-500 uppercase mt-2 tracking-[0.12em]">Inventory Management System</p>
         </div>
 
-        {error && <div className="bg-red-500/10 border border-red-500/50 text-red-400 text-[10px] p-3 rounded mb-6 text-center font-bold">{error}</div>}
+        {error && <div className="bg-red-500/10 border border-red-500/50 text-red-400 text-[13px] p-3 rounded mb-6 text-center font-bold">{error}</div>}
 
         <div className="space-y-4">
           <div className="space-y-1">
-            <label className="text-[10px] text-gray-500 uppercase font-bold">Email Address</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-[#232226] border border-[#5A595E] p-3 rounded text-xs focus:border-[#F2C4CE] outline-none transition" placeholder="manager@lumiere.io" required />
+            <label className="text-[13px] text-gray-500 uppercase font-bold">Email Address</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-[#232226] border border-[#5A595E] p-3 rounded text-base focus:border-[#F2C4CE] outline-none transition" placeholder="manager@lumiere.io" required />
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] text-gray-500 uppercase font-bold">Password</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-[#232226] border border-[#5A595E] p-3 rounded text-xs focus:border-[#F2C4CE] outline-none transition" placeholder="Enter password" required />
+            <label className="text-[13px] text-gray-500 uppercase font-bold">Password</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-[#232226] border border-[#5A595E] p-3 rounded text-base focus:border-[#F2C4CE] outline-none transition" placeholder="Enter password" required />
           </div>
         </div>
 
-        <button type="submit" className="w-full bg-[#F2C4CE] text-[#2C2B30] font-black py-4 rounded-lg mt-8 text-xs uppercase tracking-widest hover:brightness-110 transition shadow-lg">
+        <button type="submit" className="w-full bg-[#F2C4CE] text-[#2C2B30] font-black py-4 rounded-lg mt-8 text-base uppercase tracking-[0.12em] hover:brightness-110 transition shadow-lg">
           Login to Dashboard
         </button>
       </form>
@@ -63,3 +63,4 @@ const Login = ({ setAuthUser }) => {
 };
 
 export default Login;
+

@@ -1,0 +1,32 @@
+const UNIT_OF_MEASURE_OPTIONS = [
+    'pcs',
+    'box',
+    'pack',
+    'carton',
+    'bundle',
+    'set',
+    'dozen',
+    'kg',
+    'g',
+    'mg',
+    'L',
+    'mL',
+    'meter',
+    'cm',
+    'inch',
+    'foot',
+    'roll',
+    'tray',
+    'sack',
+    'bottle',
+    'can',
+    'jar',
+    'tube',
+    'ream',
+    'pair',
+    'unit',
+];
+
+module.exports = {
+    UNIT_OF_MEASURE_OPTIONS,
+};

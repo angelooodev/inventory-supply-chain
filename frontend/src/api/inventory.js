@@ -15,7 +15,7 @@ const getAuthHeader = () => {
 };
 
 export const fetchProducts = async () => {
-    const res = await fetch(`${BASE_URL}/products`);
+    const res = await fetch(`${BASE_URL}/products`, { headers: getAuthHeader() });
     return parseJsonResponse(res);
 };
 
@@ -42,11 +42,111 @@ export const createProduct = async (productData) => {
     return parseJsonResponse(res);
 };
 
+export const importProducts = async (fileName, fileData) => {
+    const res = await fetch(`${BASE_URL}/products/import`, {
+        method: 'POST',
+        headers: getAuthHeader(),
+        body: JSON.stringify({ fileName, fileData })
+    });
+    return parseJsonResponse(res);
+};
+
+export const downloadProductImportTemplate = async () => {
+    const res = await fetch(`${BASE_URL}/products/import-template`, {
+        headers: getAuthHeader(),
+    });
+
+    if (!res.ok) {
+        let errorMessage = 'Template download failed.';
+        try {
+            const data = await res.json();
+            errorMessage = data.message || errorMessage;
+        } catch (error) {
+            // Ignore JSON parsing errors for binary responses.
+        }
+        throw new Error(errorMessage);
+    }
+
+    return res.blob();
+};
+
+export const updateProduct = async (id, productData) => {
+    const res = await fetch(`${BASE_URL}/products/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeader(),
+        body: JSON.stringify(productData)
+    });
+    return parseJsonResponse(res);
+};
+
+export const deleteProduct = async (id) => {
+    const res = await fetch(`${BASE_URL}/products/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeader(),
+    });
+    return parseJsonResponse(res);
+};
+
 export const updateOrderStatus = async (id, status) => {
     const res = await fetch(`${BASE_URL}/orders/${id}`, {
         method: 'PUT',
         headers: getAuthHeader(), // Protected[cite: 2]
         body: JSON.stringify({ status })
+    });
+    return parseJsonResponse(res);
+};
+
+export const updateOrderAccounting = async (id, action, options = {}) => {
+    const res = await fetch(`${BASE_URL}/orders/${id}/accounting`, {
+        method: 'PUT',
+        headers: getAuthHeader(),
+        body: JSON.stringify({ action, ...options }),
+    });
+    return parseJsonResponse(res);
+};
+
+export const fetchPurchaseOrderForOrder = async (orderId) => {
+    const res = await fetch(`${BASE_URL}/purchase-orders/order/${orderId}`, {
+        headers: getAuthHeader(),
+    });
+    return parseJsonResponse(res);
+};
+
+export const signPurchaseOrder = async (orderId, payload) => {
+    const res = await fetch(`${BASE_URL}/purchase-orders/order/${orderId}/sign`, {
+        method: 'POST',
+        headers: getAuthHeader(),
+        body: JSON.stringify(payload),
+    });
+    return parseJsonResponse(res);
+};
+
+export const fetchTransferOrderForOrder = async (orderId) => {
+    const res = await fetch(`${BASE_URL}/transfer-orders/order/${orderId}`, {
+        headers: getAuthHeader(),
+    });
+    return parseJsonResponse(res);
+};
+
+export const signTransferOrder = async (orderId, payload) => {
+    const res = await fetch(`${BASE_URL}/transfer-orders/order/${orderId}/sign`, {
+        method: 'POST',
+        headers: getAuthHeader(),
+        body: JSON.stringify(payload),
+    });
+    return parseJsonResponse(res);
+};
+
+export const fetchSupplierPurchaseOrder = async (token) => {
+    const res = await fetch(`${BASE_URL}/purchase-orders/supplier/${token}`);
+    return parseJsonResponse(res);
+};
+
+export const signSupplierPurchaseOrder = async (token, payload) => {
+    const res = await fetch(`${BASE_URL}/purchase-orders/supplier/${token}/sign`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
     });
     return parseJsonResponse(res);
 };
@@ -82,8 +182,31 @@ export const deleteSupplier = async (id) => {
     return parseJsonResponse(res);
 };
 
+export const createOrUpdateSupplierAccount = async (id, accountData) => {
+    const res = await fetch(`${BASE_URL}/suppliers/${id}/account`, {
+        method: 'PUT',
+        headers: getAuthHeader(),
+        body: JSON.stringify(accountData)
+    });
+    return parseJsonResponse(res);
+};
+
+export const fetchOwnSupplierProfile = async () => {
+    const res = await fetch(`${BASE_URL}/suppliers/me`, { headers: getAuthHeader() });
+    return parseJsonResponse(res);
+};
+
+export const updateOwnSupplierPaymentMethods = async (paymentMethods) => {
+    const res = await fetch(`${BASE_URL}/suppliers/me/payment-methods`, {
+        method: 'PUT',
+        headers: getAuthHeader(),
+        body: JSON.stringify({ paymentMethods }),
+    });
+    return parseJsonResponse(res);
+};
+
 export const fetchWarehouses = async () => {
-    const res = await fetch(`${BASE_URL}/warehouses`);
+    const res = await fetch(`${BASE_URL}/warehouses`, { headers: getAuthHeader() });
     return parseJsonResponse(res);
 };
 

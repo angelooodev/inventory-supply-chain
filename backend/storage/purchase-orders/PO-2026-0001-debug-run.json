@@ -1,0 +1,34 @@
+{
+  "po_number": "PO-2026-0001",
+  "date_issued": "2026-05-14",
+  "delivery_date": "2026-05-21",
+  "supplier_name": "Neon Lights Logistics",
+  "contact_person": "Janjan Bansag",
+  "supplier_address": "Mandaue City, Cebu, Philippines",
+  "supplier_contact": "+63 912 345 6789",
+  "items": [
+    {
+      "description": "Anime LED Neon Sign - Zero Two Edition",
+      "quantity": "20",
+      "unit_price": "PHP 2,499.00",
+      "unit": "unit",
+      "amount": "PHP 49,980.00"
+    }
+  ],
+  "subtotal": "PHP 49,980.00",
+  "vat": "PHP 0.00",
+  "shipping_fee": "PHP 0.00",
+  "total_amount": "PHP 49,980.00",
+  "warehouse_name": "Warehouse A",
+  "warehouse_address": "Pope John Paul II Avenue, Cebu City, Cebu",
+  "warehouse_manager_signature_path": "",
+  "owner_signature_path": "",
+  "supplier_signature_path": "",
+  "warehouse_manager_name": "",
+  "owner_name": "",
+  "supplier_representative": "",
+  "company_name": "Lumiere Corporation",
+  "company_address": "Natalio B. Bacalso Ave, Bulacao Pardo, Cebu City, 6000 Cebu",
+  "company_contact": "09705157399",
+  "company_email": "earljustinesierra@gmail.com"
+}
